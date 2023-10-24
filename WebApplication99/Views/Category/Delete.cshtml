@@ -1,0 +1,25 @@
+﻿@model WebApplication99.Data.Entities.CategoryEntity
+
+<h1 class="text-center">Видалення категорії</h1>
+<form asp-action="DeleteConfirmed" method="post">
+    <div class="alert alert-danger">
+        Ви впевнені, що хочете видалити цю категорію?
+    </div>
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" disabled />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <input asp-for="Description" class="form-control" disabled />
+    </div>
+    <div class="form-group">
+        <label asp-for="Image" class="control-label"></label>
+        <img src="@Url.Content(Model.Image)" alt="Image" class="img-thumbnail" />
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Видалити" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </div>
+</form>

@@ -1,0 +1,76 @@
+﻿@model WebApplication99.Models.Product.ProductListViewModel
+
+@{
+    Layout = "_SiteLayout";
+    ViewData["Title"] = "Products";
+}
+<div class="back">
+    @Html.ActionLink("Повернутися до головного меню ↵", "BackToCategoryIndex")
+</div>
+<h1 class="text-center">Продукти</h1>
+<a href="/Product/Add" class="btn btn-success">Додати</a>
+<form class="d-flex" asp-action="Search" method="post" style=" width: 300px;">
+    <input type="text" name="text" class="form-control" placeholder="Search" aria-label="Search" />
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Назва</th>
+            <th scope="col">Категорія</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Products)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.Name)
+                </td>
+                <td class="detail_buttons">
+
+                    <a class="btn btn-outline-success me-1" href="@Url.Action("Details", new { id = item.Id })">Переглянути</a>
+
+                    <a class="btn btn-outline-warning me-1" href="@Url.Action("Edit", new { id = item.Id })">Редагувати</a>
+
+                    <a class="btn btn-outline-danger"
+                       data-bs-toggle="modal"
+                       data-bs-target="#deleteModal"
+                       data-id="@item.Id"
+                       data-name="@item.Name">
+                        Видалити
+                    </a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        const deleteModal = document.getElementById('deleteModal');
+
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            const itemId = button.getAttribute('data-id');
+            const itemName = button.getAttribute('data-name');
+
+
+            const itemIdPlaceholder = deleteModal.querySelector('#itemIdPlaceholder');
+
+            itemIdPlaceholder.textContent = `Видалити товар - ${itemName}?`;
+
+            const confirmDeleteLink = deleteModal.querySelector('#confirmDeleteLink');
+            confirmDeleteLink.href = `/Product/Delete?id=${itemId}`;
+        });
+
+    </script>
+
+    @await Html.PartialAsync("_ModalDelete")
+}

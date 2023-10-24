@@ -1,0 +1,154 @@
+﻿@model WebApplication99.Models.Product.ProductEditViewModel
+
+@{
+    ViewData["Title"] = "Редагувать";
+}
+
+<div class="container">
+    <h1 class="text-info text-center">Редагувати</h1>
+    <hr />
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control mb-3" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CategoryId">Category</label>
+                    <select asp-for="CategoryId" asp-items="@Model.CategoryList" class="form-select mb-3"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group mt-3 mb-3">
+                    <p class="text-primary text-center">Завантажити нові фото:</p>
+                    <label id="selectImages">
+                        <img class="img_upload" src="/img/input.png" width="120" alt="обрати фото" style="cursor:pointer" />
+                    </label>
+                    <input type="file" id="images" @*name="NewPhotos"*@ multiple class="form-control d-none" />
+                    @* <input type="hidden" name="DeletedPhotoIds" id="deletedPhotoIds" /> *@
+                </div>
+
+                <div id="imageContainer" class="d-flex justify-content-evenly flex-wrap">
+                    @foreach (var existingPhoto in Model.ExistingPhotos)
+                    {
+                        <div class="img_container">
+                            <img class="img_preview" src="@Url.Content(existingPhoto.Name)" />
+                            <button type="button" class="img_kaban-delete" data-photo-id="@existingPhoto.Id">X</button>
+                        </div>
+                    }
+                </div>
+
+
+                <div class="form-group">
+                    <input type="submit" value="Зберегти" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+
+        let id = 0;
+        const imageContainer = document.getElementById('imageContainer');
+
+        // Додаємо обробник подій для кнопок видалення фотографій
+        const deleteButtons = document.querySelectorAll('.img_kaban-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const photoId = button.getAttribute('data-photo-id');
+
+                console.log("Delete item", photoId);
+
+                var fileItem = document.createElement('input');
+                fileItem.type = 'hidden';
+                fileItem.classList.add('d-none')
+                fileItem.name = "DeletedPhotoIds[]";
+                fileItem.value = photoId;
+
+                imageContainer.appendChild(fileItem);
+                // Ваша логіка видалення фотографії
+                // Ви можете робити запит до сервера для видалення фотографії
+                // або виконувати інші дії для видалення фотографії
+
+                // Після успішного видалення видаліть елемент зі сторінки
+                const imgContainer = button.closest('.img_container');
+                imgContainer.remove();
+            });
+        });
+
+
+
+        let selectImages = document.getElementById("selectImages");
+        selectImages.addEventListener("click", function () {
+            // Генеруємо id для фото
+            id = generateUniqueId();
+            var fileItem = document.createElement('input');
+            fileItem.type = 'file';
+            fileItem.classList.add('d-none')
+            fileItem.onchange = handleFileSelect;
+            fileItem.name = "NewPhotos";
+            fileItem.id = id;
+            imageContainer.appendChild(fileItem);
+            fileItem.click();
+        });
+
+
+        function handleFileSelect(event) {
+            const fileInput = event.target;
+
+            if (fileInput.files.length > 0) {
+
+                const imgContainer = document.createElement('div');
+                imgContainer.dataset.id = id; // Зберігаємо id input
+
+                imgContainer.classList.add('img_container');
+
+                const file = fileInput.files[0];
+
+                const imgElement = document.createElement('img');
+                imgElement.classList.add('img_preview');
+                imgElement.src = URL.createObjectURL(file);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'X';
+                deleteButton.classList.add('img_preview-delete');
+                deleteButton.type = 'button';
+
+                deleteButton.addEventListener('click', function () {
+                    console.log("file input id ", imgContainer.dataset.id);
+                    document.getElementById(imgContainer.dataset.id).remove(); //видаляю також сам input file
+                    imageContainer.removeChild(imgContainer); //видаляємо сам контейр для однієї фото
+                });
+                imgContainer.appendChild(imgElement);
+                imgContainer.appendChild(deleteButton);
+                imageContainer.appendChild(imgContainer);
+
+            }
+        }
+
+        function generateUniqueId() {
+            // Create a timestamp-based part of the ID
+            const timestampPart = new Date().getTime().toString(16);
+
+            // Create a random number part of the ID
+            const randomPart = Math.floor(Math.random() * 1000000).toString(16);
+
+            // Concatenate the two parts to create a unique ID
+            const uniqueId = timestampPart + randomPart;
+
+            return uniqueId;
+        }
+    </script>
+}
+
+
+
+
